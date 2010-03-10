@@ -9,7 +9,7 @@
 #import "PhotoPagerViewController.h"
 
 #define kIMAGEVIEWTAGBASE		1000
-#define kNUMBEROFIMAGES			3
+#define kNUMBEROFIMAGES			4
 
 @implementation PhotoPagerViewController
 
@@ -51,7 +51,7 @@
 
 - (void)layoutImageViewsInScrollView:(UIScrollView *)scrollView {
 	// Images
-	const CGFloat gap = 10.0f;
+	const CGFloat gap = 20.0f;
 	CGRect rect = CGRectZero;
 	rect.size = [scrollView bounds].size;
 	CGFloat pageWidth = rect.size.width;
@@ -122,10 +122,7 @@
 	startDragPoint = scrollView.contentOffset;
 }
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-//	NSLog(@"Done decelerating");
-	//[self scrollToActivePageInScrollView:scrollView];
-}
+
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
 //	NSLog(@"Begin decelerating");
@@ -170,9 +167,8 @@
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-	NSLog(@"Will Rotate");
+	//NSLog(@"Will Rotate");
 	NSInteger currentPage = currentPageIndex;
-	//BOOL toLandscape = UIDeviceOrientationIsLandscape(toInterfaceOrientation);
 	UIView *currentView = [scroller viewWithTag:kIMAGEVIEWTAGBASE + currentPage];
 	NSMutableArray *imageViews = [NSMutableArray array];
 	for (UIView *childView in [scroller subviews]) {
