@@ -9,7 +9,7 @@
 #import "PhotoPagerViewController.h"
 
 #define kIMAGEVIEWTAGBASE		1000
-#define kNUMBEROFIMAGES			2
+#define kNUMBEROFIMAGES			3
 
 @implementation PhotoPagerViewController
 
@@ -83,6 +83,7 @@
 	scroller.autoresizesSubviews = YES;
 	scroller.showsVerticalScrollIndicator = scroller.showsHorizontalScrollIndicator = NO;
 	scroller.delegate = self;
+	scroller.decelerationRate = UIScrollViewDecelerationRateFast;
 	[self.view addSubview:scroller];
 	
 	// Images	
