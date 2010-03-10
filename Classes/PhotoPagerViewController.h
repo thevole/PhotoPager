@@ -10,7 +10,10 @@
 
 @interface PhotoPagerViewController : UIViewController <UIScrollViewDelegate> {
 	NSInteger currentPageIndex;
+	BOOL scrollRequired;
+	
 	CGFloat currentPageSize;
+	
 	UIScrollView *scroller;
 	CGPoint startDragPoint;
 }

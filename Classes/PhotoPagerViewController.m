@@ -109,8 +109,10 @@
 
 - (void)scrollToActivePageInScrollView:(UIScrollView *)scrollView {
 	UIView *activeView = [scrollView viewWithTag:kIMAGEVIEWTAGBASE + currentPageIndex];
-	NSLog(@"Scrolling to page %d", currentPageIndex);
-	[scrollView scrollRectToVisible:activeView.frame animated:YES];
+//	NSLog(@"Scrolling to page %d", currentPageIndex);
+	if (scrollRequired) {
+		[scrollView scrollRectToVisible:activeView.frame animated:YES];
+	}
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
@@ -118,25 +120,29 @@
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-	NSLog(@"Done decelerating");
+//	NSLog(@"Done decelerating");
 	//[self scrollToActivePageInScrollView:scrollView];
 }
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
-	NSLog(@"Begin decelerating");
+//	NSLog(@"Begin decelerating");
 	[self scrollToActivePageInScrollView:scrollView];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-	NSLog(@"Scroll view end dragging with decelerate %d", decelerate);
+//	NSLog(@"Scroll view end dragging with decelerate %d", decelerate);
 	CGPoint endDragPoint = scrollView.contentOffset;
 	BOOL isForward = endDragPoint.x > startDragPoint.x;
+	NSInteger previousPageIndex = currentPageIndex;
 	if (isForward){
 		if (++currentPageIndex == kNUMBEROFIMAGES) currentPageIndex = kNUMBEROFIMAGES - 1;
 	}
 	else {
 		if (--currentPageIndex < 0) currentPageIndex = 0;
 	}
+	
+	scrollRequired = (previousPageIndex != currentPageIndex);
+
 
 	if (!decelerate)
 		[self scrollToActivePageInScrollView:scrollView];
@@ -151,6 +157,7 @@
 
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
 	[self layoutImageViewsInScrollView:scroller];
+	scrollRequired = YES;
 	[self scrollToActivePageInScrollView:scroller];
 }
 
