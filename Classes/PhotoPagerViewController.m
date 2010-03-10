@@ -119,6 +119,11 @@
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
 	NSLog(@"Done decelerating");
+	//[self scrollToActivePageInScrollView:scrollView];
+}
+
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
+	NSLog(@"Begin decelerating");
 	[self scrollToActivePageInScrollView:scrollView];
 }
 
