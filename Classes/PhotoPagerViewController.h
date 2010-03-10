@@ -13,10 +13,13 @@
 	BOOL scrollRequired;
 	
 	CGFloat currentPageSize;
+	NSArray *containedImageViews;
 	
 	UIScrollView *scroller;
 	CGPoint startDragPoint;
 }
+
+@property (nonatomic, retain) NSArray *containedImageViews;
 
 @end
 

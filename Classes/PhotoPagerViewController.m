@@ -13,6 +13,8 @@
 
 @implementation PhotoPagerViewController
 
+@synthesize containedImageViews;
+
 #pragma mark Initialization
 
 - (id)init {
@@ -39,6 +41,7 @@
 
 
 - (void)dealloc {
+	[containedImageViews release];
 	[scroller release];
     [super dealloc];
 }
@@ -107,11 +110,11 @@
 #pragma mark -
 #pragma mark UIScrollViewDelegate methods
 
-- (void)scrollToActivePageInScrollView:(UIScrollView *)scrollView {
+- (void)scrollToActivePageInScrollView:(UIScrollView *)scrollView animated:(BOOL)animated {
 	UIView *activeView = [scrollView viewWithTag:kIMAGEVIEWTAGBASE + currentPageIndex];
 //	NSLog(@"Scrolling to page %d", currentPageIndex);
 	if (scrollRequired) {
-		[scrollView scrollRectToVisible:activeView.frame animated:YES];
+		[scrollView scrollRectToVisible:activeView.frame animated:animated];
 	}
 }
 
@@ -126,7 +129,7 @@
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
 //	NSLog(@"Begin decelerating");
-	[self scrollToActivePageInScrollView:scrollView];
+	[self scrollToActivePageInScrollView:scrollView animated:YES];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
@@ -145,7 +148,7 @@
 
 
 	if (!decelerate)
-		[self scrollToActivePageInScrollView:scrollView];
+		[self scrollToActivePageInScrollView:scrollView animated:YES];
 }
 
 #pragma mark -
@@ -156,9 +159,33 @@
 }
 
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	for (UIView *oldView in self.containedImageViews) {
+		if (oldView.tag != kIMAGEVIEWTAGBASE + currentPageIndex) {
+			[scroller addSubview:oldView];
+		}
+	}
 	[self layoutImageViewsInScrollView:scroller];
 	scrollRequired = YES;
-	[self scrollToActivePageInScrollView:scroller];
+	[self scrollToActivePageInScrollView:scroller animated:NO];
+}
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+	NSLog(@"Will Rotate");
+	NSInteger currentPage = currentPageIndex;
+	//BOOL toLandscape = UIDeviceOrientationIsLandscape(toInterfaceOrientation);
+	UIView *currentView = [scroller viewWithTag:kIMAGEVIEWTAGBASE + currentPage];
+	NSMutableArray *imageViews = [NSMutableArray array];
+	for (UIView *childView in [scroller subviews]) {
+		if ([childView isKindOfClass:[UIImageView class]] && childView.tag >= kIMAGEVIEWTAGBASE) {
+			[imageViews addObject:childView];
+			if (childView != currentView) {
+				[childView removeFromSuperview];
+			}
+		}
+	}
+	currentView.frame = currentView.bounds;
+	scroller.contentSize = currentView.bounds.size;
+	self.containedImageViews = imageViews;
 }
 
 @end
