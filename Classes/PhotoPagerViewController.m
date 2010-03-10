@@ -17,7 +17,7 @@
 
 - (id)init {
 	if (self = [super init]) {
-		currentPage = 0;
+		currentPageIndex = 0;
 	}
 	return self;
 }
@@ -46,6 +46,25 @@
 #pragma mark -
 #pragma mark View construction
 
+- (void)layoutImageViewsInScrollView:(UIScrollView *)scrollView {
+	// Images
+	const CGFloat gap = 10.0f;
+	CGRect rect = CGRectZero;
+	rect.size = [scrollView bounds].size;
+	CGFloat pageWidth = rect.size.width;
+	currentPageSize = pageWidth + gap;
+	
+	for (int i=0; i<kNUMBEROFIMAGES; i++) {
+		UIView *imageView = [scrollView viewWithTag:kIMAGEVIEWTAGBASE + i];
+		imageView.frame = rect;
+		
+		rect.origin.x += currentPageSize;		
+	}
+	
+	CGSize contentSize = CGSizeMake(pageWidth * kNUMBEROFIMAGES + gap * (kNUMBEROFIMAGES - 1), rect.size.height);
+	scroller.contentSize = contentSize;
+}
+
 - (void)loadView {
 	
 	// Container view
@@ -58,35 +77,63 @@
 	
 	// ScrollView
 	scroller = [[UIScrollView alloc] initWithFrame:self.view.bounds];
-	scroller.backgroundColor = [UIColor blueColor];
+	scroller.backgroundColor = [UIColor darkGrayColor];
 	scroller.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	scroller.contentMode = UIViewContentModeCenter;
 	scroller.autoresizesSubviews = YES;
 	scroller.showsVerticalScrollIndicator = scroller.showsHorizontalScrollIndicator = NO;
+	scroller.delegate = self;
 	[self.view addSubview:scroller];
 	
-	// Images
-	CGFloat gap = 10.0f;
-	CGRect rect = [scroller bounds];
-	CGFloat pageWidth = rect.size.width;
-	
+	// Images	
 	for (int i=0; i<kNUMBEROFIMAGES; i++) {
 		NSString *imageName = [NSString stringWithFormat:@"photo%d.png", i+1];
 		UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:imageName]];
 		imageView.contentMode = UIViewContentModeScaleAspectFit;
 		imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		imageView.backgroundColor = [UIColor blackColor];
-		imageView.tag = kIMAGEVIEWTAGBASE;
-		imageView.frame = rect;
+		imageView.tag = kIMAGEVIEWTAGBASE + i;
 		[scroller addSubview:imageView];
 		[imageView release];
-		
-		rect.origin.x += pageWidth + gap; 
-		
+				
 	}
 	
-	CGSize contentSize = CGSizeMake(pageWidth * kNUMBEROFIMAGES + gap * (kNUMBEROFIMAGES - 1), rect.size.height);
-	scroller.contentSize = contentSize;
+	[self layoutImageViewsInScrollView:scroller];
+}
+
+
+
+#pragma mark -
+#pragma mark UIScrollViewDelegate methods
+
+- (void)scrollToActivePageInScrollView:(UIScrollView *)scrollView {
+	UIView *activeView = [scrollView viewWithTag:kIMAGEVIEWTAGBASE + currentPageIndex];
+	NSLog(@"Scrolling to page %d", currentPageIndex);
+	[scrollView scrollRectToVisible:activeView.frame animated:YES];
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+	startDragPoint = scrollView.contentOffset;
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+	NSLog(@"Done decelerating");
+	[self scrollToActivePageInScrollView:scrollView];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+	NSLog(@"Scroll view end dragging with decelerate %d", decelerate);
+	CGPoint endDragPoint = scrollView.contentOffset;
+	BOOL isForward = endDragPoint.x > startDragPoint.x;
+	if (isForward){
+		if (++currentPageIndex == kNUMBEROFIMAGES) currentPageIndex = kNUMBEROFIMAGES - 1;
+	}
+	else {
+		if (--currentPageIndex < 0) currentPageIndex = 0;
+	}
+
+	if (!decelerate)
+		[self scrollToActivePageInScrollView:scrollView];
 }
 
 #pragma mark -
@@ -94,6 +141,11 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
 	return YES;
+}
+
+- (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	[self layoutImageViewsInScrollView:scroller];
+	[self scrollToActivePageInScrollView:scroller];
 }
 
 @end

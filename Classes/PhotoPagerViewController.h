@@ -8,9 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PhotoPagerViewController : UIViewController {
-	NSInteger currentPage;
+@interface PhotoPagerViewController : UIViewController <UIScrollViewDelegate> {
+	NSInteger currentPageIndex;
+	CGFloat currentPageSize;
 	UIScrollView *scroller;
+	CGPoint startDragPoint;
 }
 
 @end
