@@ -146,6 +146,16 @@
 	
 }
 
+- (void)restorePreservedViews {
+	for (UIView *oldView in self.containedImageViews) {
+		if (oldView.tag != kIMAGEVIEWTAGBASE + currentPageIndex) {
+			[scroller addSubview:oldView];
+		}
+	}
+	[self layoutImageViewsInScrollView:scroller];
+	scrollRequired = YES;
+	[self scrollToActivePageInScrollView:scroller animated:NO];
+}
 
 
 #pragma mark -
@@ -159,6 +169,15 @@
 	}
 	
 	return self.zoomView;
+}
+
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(float)scale
+{
+	if (1.0f == scale) {
+		NSLog(@"Reset scrollview to normal view");
+		isZooming = NO;
+		[self restorePreservedViews];
+	}
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
