@@ -108,8 +108,8 @@
 
 
 
-#pragma mark -
-#pragma mark UIScrollViewDelegate methods
+#pragma mark - 
+#pragma mark Scrolling utility methods
 
 - (void)scrollToActivePageInScrollView:(UIScrollView *)scrollView animated:(BOOL)animated {
 	UIView *activeView = [scrollView viewWithTag:kIMAGEVIEWTAGBASE + currentPageIndex];
@@ -119,18 +119,24 @@
 	}
 }
 
+#pragma mark -
+#pragma mark UIScrollViewDelegate methods
+
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+	if (isZooming) return;
 	startDragPoint = scrollView.contentOffset;
 }
 
 
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
+	if (isZooming) return;
 //	NSLog(@"Begin decelerating");
 	[self scrollToActivePageInScrollView:scrollView animated:YES];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+	if (isZooming) return;
 //	NSLog(@"Scroll view end dragging with decelerate %d", decelerate);
 	CGPoint endDragPoint = scrollView.contentOffset;
 	BOOL isForward = endDragPoint.x > startDragPoint.x;
