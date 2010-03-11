@@ -17,11 +17,13 @@
 	
 	UIScrollView *scroller;
 	CGPoint startDragPoint;
+	UIView *zoomView;
 	
 	BOOL isZooming;
 }
 
 @property (nonatomic, retain) NSArray *containedImageViews;
+@property (nonatomic, retain) UIView *zoomView;
 
 @end
 

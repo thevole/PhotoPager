@@ -14,6 +14,7 @@
 @implementation PhotoPagerViewController
 
 @synthesize containedImageViews;
+@synthesize zoomView;
 
 #pragma mark Initialization
 
@@ -43,6 +44,7 @@
 
 - (void)dealloc {
 	[containedImageViews release];
+	[zoomView release];
 	[scroller release];
     [super dealloc];
 }
@@ -111,6 +113,8 @@
 #pragma mark - 
 #pragma mark Scrolling utility methods
 
+
+
 - (void)scrollToActivePageInScrollView:(UIScrollView *)scrollView animated:(BOOL)animated {
 	UIView *activeView = [scrollView viewWithTag:kIMAGEVIEWTAGBASE + currentPageIndex];
 //	NSLog(@"Scrolling to page %d", currentPageIndex);
@@ -119,8 +123,41 @@
 	}
 }
 
+- (void)showActiveViewAndPreserve {
+	NSInteger currentPage = currentPageIndex;
+	UIView *currentView = [scroller viewWithTag:kIMAGEVIEWTAGBASE + currentPage];
+	NSMutableArray *imageViews = [NSMutableArray array];
+	for (UIView *childView in [scroller subviews]) {
+		if ([childView isKindOfClass:[UIImageView class]] && childView.tag >= kIMAGEVIEWTAGBASE) {
+			[imageViews addObject:childView];
+			if (childView != currentView) {
+				[childView removeFromSuperview];
+			}
+		}
+	}
+	currentView.frame = currentView.bounds;
+	scroller.contentSize = currentView.bounds.size;
+	self.containedImageViews = imageViews;
+	
+	if (isZooming) 
+		self.zoomView = currentView;
+	
+}
+
+
+
 #pragma mark -
 #pragma mark UIScrollViewDelegate methods
+
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+	if (!isZooming) {
+		isZooming = YES;
+		NSLog(@"Starting zoom");
+		[self showActiveViewAndPreserve];
+	}
+	
+	return self.zoomView;
+}
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
 	if (isZooming) return;
@@ -175,20 +212,7 @@
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
 	//NSLog(@"Will Rotate");
-	NSInteger currentPage = currentPageIndex;
-	UIView *currentView = [scroller viewWithTag:kIMAGEVIEWTAGBASE + currentPage];
-	NSMutableArray *imageViews = [NSMutableArray array];
-	for (UIView *childView in [scroller subviews]) {
-		if ([childView isKindOfClass:[UIImageView class]] && childView.tag >= kIMAGEVIEWTAGBASE) {
-			[imageViews addObject:childView];
-			if (childView != currentView) {
-				[childView removeFromSuperview];
-			}
-		}
-	}
-	currentView.frame = currentView.bounds;
-	scroller.contentSize = currentView.bounds.size;
-	self.containedImageViews = imageViews;
+	[self showActiveViewAndPreserve];
 }
 
 @end
