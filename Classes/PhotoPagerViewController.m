@@ -90,6 +90,8 @@
 	scroller.showsVerticalScrollIndicator = scroller.showsHorizontalScrollIndicator = NO;
 	scroller.delegate = self;
 	scroller.decelerationRate = UIScrollViewDecelerationRateFast;
+	scroller.minimumZoomScale = 1.0f;
+	scroller.maximumZoomScale = 3.0f;
 	[self.view addSubview:scroller];
 	
 	// Images	
