@@ -221,6 +221,7 @@
 }
 
 - (void) didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	if (isZooming) return;
 	for (UIView *oldView in self.containedImageViews) {
 		if (oldView.tag != kIMAGEVIEWTAGBASE + currentPageIndex) {
 			[scroller addSubview:oldView];
@@ -233,6 +234,7 @@
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
 	//NSLog(@"Will Rotate");
+	if (isZooming) return;
 	[self showActiveViewAndPreserve];
 }
 
