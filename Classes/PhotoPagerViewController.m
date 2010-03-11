@@ -20,6 +20,7 @@
 - (id)init {
 	if (self = [super init]) {
 		currentPageIndex = 0;
+		isZooming = NO;
 	}
 	return self;
 }
