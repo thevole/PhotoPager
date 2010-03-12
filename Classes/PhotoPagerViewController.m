@@ -120,9 +120,9 @@
 - (void)scrollToActivePageInScrollView:(UIScrollView *)scrollView animated:(BOOL)animated {
 	UIView *activeView = [scrollView viewWithTag:kIMAGEVIEWTAGBASE + currentPageIndex];
 //	NSLog(@"Scrolling to page %d", currentPageIndex);
-	if (scrollRequired) {
-		[scrollView scrollRectToVisible:activeView.frame animated:animated];
-	}
+	
+	[scrollView scrollRectToVisible:activeView.frame animated:animated];
+	
 }
 
 - (void)showActiveViewAndPreserve {
@@ -153,7 +153,6 @@
 		}
 	}
 	[self layoutImageViewsInScrollView:scroller];
-	scrollRequired = YES;
 	[self scrollToActivePageInScrollView:scroller animated:NO];
 }
 
@@ -175,8 +174,11 @@
 {
 	if (1.0f == scale) {
 		NSLog(@"Reset scrollview to normal view");
+		
+		CGPoint pt = self.zoomView.frame.origin;
+		[scrollView setContentOffset:pt animated:YES];
+		[self performSelector:@selector(restorePreservedViews) withObject:nil afterDelay:0.3f];
 		isZooming = NO;
-		[self restorePreservedViews];
 	}
 }
 
@@ -190,7 +192,8 @@
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
 	if (isZooming) return;
 //	NSLog(@"Begin decelerating");
-	[self scrollToActivePageInScrollView:scrollView animated:YES];
+	if (scrollRequired)
+		[self scrollToActivePageInScrollView:scrollView animated:YES];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
@@ -207,9 +210,10 @@
 	}
 	
 	scrollRequired = (previousPageIndex != currentPageIndex);
+	NSLog(@"Current Page: %d Scroll required: %d", currentPageIndex, scrollRequired);
 
 
-	if (!decelerate)
+	if (!decelerate && scrollRequired)
 		[self scrollToActivePageInScrollView:scrollView animated:YES];
 }
 
@@ -228,7 +232,6 @@
 		}
 	}
 	[self layoutImageViewsInScrollView:scroller];
-	scrollRequired = YES;
 	[self scrollToActivePageInScrollView:scroller animated:NO];
 }
 
