@@ -119,7 +119,7 @@
 
 - (void)scrollToActivePageInScrollView:(UIScrollView *)scrollView animated:(BOOL)animated {
 	UIView *activeView = [scrollView viewWithTag:kIMAGEVIEWTAGBASE + currentPageIndex];
-//	NSLog(@"Scrolling to page %d", currentPageIndex);
+	NSLog(@"Scrolling to page %d", currentPageIndex);
 	
 	[scrollView scrollRectToVisible:activeView.frame animated:animated];
 	
@@ -191,14 +191,14 @@
 
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView {
 	if (isZooming) return;
-//	NSLog(@"Begin decelerating");
+	NSLog(@"Begin decelerating");
 	if (scrollRequired)
 		[self scrollToActivePageInScrollView:scrollView animated:YES];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
 	if (isZooming) return;
-//	NSLog(@"Scroll view end dragging with decelerate %d", decelerate);
+	NSLog(@"Scroll view end dragging with decelerate %d", decelerate);
 	CGPoint endDragPoint = scrollView.contentOffset;
 	BOOL isForward = endDragPoint.x > startDragPoint.x;
 	NSInteger previousPageIndex = currentPageIndex;
