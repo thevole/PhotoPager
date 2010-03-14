@@ -20,6 +20,7 @@
 	UIView *zoomView;
 	
 	BOOL isZooming;
+	BOOL zoomEnded;
 }
 
 @property (nonatomic, retain) NSArray *containedImageViews;

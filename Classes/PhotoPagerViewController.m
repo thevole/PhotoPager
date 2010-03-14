@@ -21,7 +21,6 @@
 - (id)init {
 	if (self = [super init]) {
 		currentPageIndex = 0;
-		isZooming = NO;
 	}
 	return self;
 }
@@ -137,8 +136,11 @@
 			}
 		}
 	}
-	currentView.frame = currentView.bounds;
-	scroller.contentSize = currentView.bounds.size;
+	
+	CGRect rect = [currentView bounds];
+	NSLog(@"Showing ActiveView in %@", NSStringFromCGRect(rect));
+	currentView.frame = rect;
+	scroller.contentSize = rect.size;
 	self.containedImageViews = imageViews;
 	
 	if (isZooming) 
@@ -175,10 +177,9 @@
 	if (1.0f == scale) {
 		NSLog(@"Reset scrollview to normal view");
 		
-		CGPoint pt = self.zoomView.frame.origin;
-		[scrollView setContentOffset:pt animated:YES];
-		[self performSelector:@selector(restorePreservedViews) withObject:nil afterDelay:0.3f];
+		[self restorePreservedViews];
 		isZooming = NO;
+		zoomEnded = YES;
 	}
 }
 
@@ -197,7 +198,12 @@
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-	if (isZooming) return;
+	if (isZooming || zoomEnded)
+	{
+		zoomEnded = NO;
+		return;
+		
+	}
 	NSLog(@"Scroll view end dragging with decelerate %d", decelerate);
 	CGPoint endDragPoint = scrollView.contentOffset;
 	BOOL isForward = endDragPoint.x > startDragPoint.x;
@@ -236,7 +242,7 @@
 }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-	//NSLog(@"Will Rotate");
+	NSLog(@"Will Rotate");
 	if (isZooming) return;
 	[self showActiveViewAndPreserve];
 }
